@@ -1,4 +1,4 @@
-# sir_simulation
+# sveir_simulation
 
 💉 An epidemic model for COVID-19 transmission simulating how different vaccination rates during the early pandemic could have affected the number of cases
 
