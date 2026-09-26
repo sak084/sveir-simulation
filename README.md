@@ -23,8 +23,7 @@ Equations: SEIR equation (Santosh, et al. 2025.)
     * duration of illness = 9.95, averaged from low of 6.5 and high of 13.4 (Byrne, et al. 2020. https://bmjopen.bmj.com/content/10/8/e039856)
      
 Example Graphs with Half, Original, Double, and Quadruple Vaccination Rates
-<img width="1235" height="797" alt="Graphs with Half, Original, Double, and Quadruple Vaccination Rates" src="<img width="1364" height="851" alt="Screenshot 2026-09-26 at 11 58 40 AM" src="https://github.com/user-attachments/assets/d0cd30e6-dc98-48ea-ae89-d057eb51a70a" />
-" />
+src="<img width="1364" height="851" alt="Graphs with Half, Original, Double, and Quadruple Vaccination Rates" src="https://github.com/user-attachments/assets/d0cd30e6-dc98-48ea-ae89-d057eb51a70a" />
 
 ## Setup
 1. Clone the repo
