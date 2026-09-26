@@ -1,21 +1,38 @@
 import matplotlib.pyplot as plt
+import pandas as pd
 
 class SEVIR:
+    df = pd.read_csv("owid-covid-data.csv")
+    us = df[df["location"] == "United States"]
+    window = us[(us["date"] >= "2021-01-01") & (us["date"] <= "2021-03-01")]
+
     # initializes constant variables for sveir model
-    infectionRate = 0.51
-    incubationRate = 0.15
-    recoveryRate = 0.10
-    days = 14 #show graph over a two-week period
+    # infection rate: number of infections/number of people at risk 
+    # (assume 100% vaccine efficacy, and recovered people can get it too rn)
+    # incubation rate: 1/average incubation period = 1/5 days = 0.2
+    # len: all of the entries in the dataset 
 
-    N = 1000
-    initialSusceptible = 100
-    initialExposed = 200
-    initialVaccinated = 100
-    initialInfected = 200
-    initialRecovered = 400
+    infectionRate = window["total_cases"].mean() / (window["population"].mean() - 
+                    window["total_vaccinations"].mean() - window["total_cases"].mean())
+    incubationRate = 0.2
+    recoveryRate = 0.1
+    days = len(window)
 
-    # constructor that initializes the vaccination rate
-    def __init__ (self, vaccinationRate):
+    first_row = window.iloc[0]
+    N = first_row["population"]
+
+    initialSusceptible = first_row["population"] - first_row["total_vaccinations"] - first_row["total_cases"]
+    initialVaccinated = first_row["total_vaccinations"]
+    initialInfected = first_row["total_cases"]
+
+    #calculate initial recovered manually by doing total cases - total deaths - active cases
+    initialRecovered = first_row["total_cases"] - first_row["total_deaths"] - initialInfected
+
+    # calculate initial exposed manually by subtracting s,v,i,r from p
+    initialExposed = first_row["population"] - initialSusceptible - initialVaccinated - initialInfected - initialRecovered 
+ 
+    averageVaccinationRate = window["new_vaccinations_smoothed_per_million"].mean()/ 1000000
+    def __init__(self, vaccinationRate = averageVaccinationRate):
         self.vaccinationRate = vaccinationRate
 
     # calculates, S, E, V, I, and R values for each day
@@ -69,33 +86,36 @@ def main():
     fig, axs = plt.subplots(2,2)
     plt.title = "SEVIR Model Comparison with vaccination rates"
 
-    # subplot #1 (upper left)- 5% vaccination rate
-    model1 = SEVIR(0.05) 
+    # simulating different vaccination rates in comparison to what we have now
+    initialVaccinationRate = SEVIR.averageVaccinationRate
+
+    # subplot #1 (upper left)- Halved Current Rate
+    model1 = SEVIR(0.5 * initialVaccinationRate) 
     s1, e1, v1, i1, r1 = model1.addCounts()
     daysList1 = model1.getDaysList()
     model1.plot(axs[0][0], daysList1, s1, e1, v1, i1, r1)
-    axs[0][0].set_title("5% vaccination rate", fontsize = 10)
+    axs[0][0].set_title("Halved Current Rate", fontsize = 10)
 
-    # subplot #2 (upper right)- 10% vaccination rate
-    model2 = SEVIR(0.10) 
+    # subplot #2 (upper right)- Current Rate
+    model2 = SEVIR(initialVaccinationRate) 
     s2, e2, v2, i2, r2 = model2.addCounts()
     daysList2 = model2.getDaysList()
     model2.plot(axs[0][1], daysList2, s2, e2, v2, i2, r2)
-    axs[0][1].set_title("10% vaccination rate", fontsize = 10)
+    axs[0][1].set_title("Current Rate", fontsize = 10)
 
-    # subplot #3 (lower left)- 30% vaccination rate
-    model3 = SEVIR(0.30) 
+    # subplot #3 (lower left)- Doubled Current Rate
+    model3 = SEVIR(2 * initialVaccinationRate) 
     s3, e3, v3, i3, r3 = model3.addCounts()
     daysList3 = model3.getDaysList()
     model3.plot(axs[1][0], daysList3, s3, e3, v3, i3, r3)
-    axs[1][0].set_title("30% vaccination rate", fontsize = 10)
+    axs[1][0].set_title("Doubled Current Rate", fontsize = 10)
 
-    # subplot #4 (lower right)- 70% vaccination rate
-    model4 = SEVIR(0.70) 
+    # subplot #4 (lower right)- Quadrupled Current Rate
+    model4 = SEVIR(4 * initialVaccinationRate) 
     s4, e4, v4, i4, r4 = model4.addCounts()
     daysList4 = model4.getDaysList()
     model4.plot(axs[1][1], daysList4, s4, e4, v4, i4, r4)
-    axs[1][1].set_title("70% vaccination rate", fontsize = 10)
+    axs[1][1].set_title("Quadrupled Current Rate", fontsize = 10)
 
     plt.show()
 
